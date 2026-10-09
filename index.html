@@ -250,8 +250,27 @@
   body.focus-mode #stage{top:0 !important}
   body.focus-mode #prevBtn,body.focus-mode #nextBtn{opacity:0;pointer-events:none;transition:opacity .3s}
   body.focus-mode #shade{display:none}
-  body.focus-mode #fsBtn{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;opacity:1;padding:11px 24px;background:rgba(20,14,7,.88);border-color:rgba(255,170,90,.65);font-size:14px;letter-spacing:2px;box-shadow:0 6px 24px rgba(0,0,0,.55)}
-  body.focus-mode #fsBtn:hover{background:rgba(70,48,24,.95)}
+  body.focus-mode #fsBtn{display:none}
+  /* 沉浸模式退出按钮（独立于顶栏，避免被 translateY 带走） */
+  #exitFocus{
+    position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:50%;
+    transform:translateX(-50%) translateY(20px);
+    z-index:60;display:none;align-items:center;gap:8px;
+    padding:12px 28px;font-size:14px;letter-spacing:2px;
+    color:#ffe9c2;background:rgba(20,14,7,.92);
+    border:1px solid rgba(255,170,90,.65);border-radius:30px;
+    font-family:inherit;cursor:pointer;white-space:nowrap;
+    box-shadow:0 6px 24px rgba(0,0,0,.6);
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+    transition:background .25s;
+  }
+  body.focus-mode #exitFocus{display:inline-flex;animation:exitIn .45s ease both}
+  @keyframes exitIn{
+    from{opacity:0;transform:translateX(-50%) translateY(20px)}
+    to{opacity:1;transform:translateX(-50%) translateY(0)}
+  }
+  #exitFocus:hover{background:rgba(70,48,24,.95)}
+  #exitFocus:active{background:rgba(95,64,32,.98)}
   /* 翻页按钮：可上下拖动 */
   .flip-btn{border-radius:22px;box-shadow:0 4px 18px rgba(0,0,0,.35);touch-action:none;user-select:none}
   .flip-btn.dragging{transition:none}
@@ -313,6 +332,8 @@
     <button class="tb-btn" id="fsBtn" title="全屏">⛶</button>
   </div>
 </div>
+
+<button id="exitFocus" aria-label="退出沉浸阅读">✕ 退出沉浸阅读</button>
 
 <button class="tb-btn flip-btn" id="prevBtn" style="position:fixed;left:10px;top:50%;z-index:25;padding:13px 9px;margin-top:-24px">‹</button>
 <button class="tb-btn flip-btn" id="nextBtn" style="position:fixed;right:10px;top:50%;z-index:25;padding:13px 9px;margin-top:-24px">›</button>
@@ -733,6 +754,7 @@ $("shade").onclick=()=>toggleDrawer(false);
 $("prevBtn").onclick=()=>go(state.cur-1);
 $("nextBtn").onclick=()=>go(state.cur+1);
 document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&document.body.classList.contains("focus-mode")){setFocus(false);return;}
   if($("cover").classList.contains("hide")){
     if(e.key==="ArrowRight"||e.key==="PageDown")go(state.cur+1);
     else if(e.key==="ArrowLeft"||e.key==="PageUp")go(state.cur-1);
@@ -745,11 +767,13 @@ function setFont(v){
   document.documentElement.style.setProperty("--prose-size",v+"px");
   localStorage.setItem("asfont",v);
 }
-$("fsBtn").onclick=()=>{
-  const fm=document.body.classList.toggle("focus-mode");
-  $("fsBtn").textContent=fm?"✕ 退出阅读":"⛶ 沉浸";
-  $("fsBtn").title=fm?"退出沉浸阅读":"进入沉浸阅读";
-};
+function setFocus(on){
+  document.body.classList.toggle("focus-mode",on);
+  $("fsBtn").textContent=on?"✕":"⛶";
+  $("fsBtn").title=on?"退出沉浸阅读":"进入沉浸阅读";
+}
+$("fsBtn").onclick=()=>setFocus(!document.body.classList.contains("focus-mode"));
+$("exitFocus").onclick=()=>setFocus(false);
 
 /* —— 翻页按钮：手机端可上下拖动 —— */
 function makeDraggable(btn){
