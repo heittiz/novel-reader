@@ -84,17 +84,20 @@
   }
   @keyframes breath{0%,100%{box-shadow:0 0 0 rgba(255,138,61,0)}50%{box-shadow:0 0 34px rgba(255,138,61,.55)}}
   #cover h1{
-    font-size:clamp(44px,9vw,86px);line-height:1.05;color:#ffe9c2;
+    font-size:clamp(30px,7.5vw,64px);line-height:1.05;color:#ffe9c2;
     text-shadow:0 4px 40px rgba(255,138,61,.45),0 0 80px rgba(255,150,70,.25);
-    letter-spacing:6px;font-weight:900;
+    letter-spacing:3px;font-weight:900;white-space:nowrap;
   }
   #cover .sub{font-size:clamp(14px,2.4vw,18px);color:#d9b27f;letter-spacing:10px;margin-top:18px;font-weight:300}
   #cover .divider{width:240px;height:1px;margin:34px auto;background:linear-gradient(90deg,transparent,var(--ember),transparent);position:relative}
   #cover .divider::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;transform:translate(-50%,-50%) rotate(45deg);background:var(--ember);box-shadow:0 0 16px var(--ember)}
   #cover .synopsis{font-size:15px;color:#b8915d;line-height:2.2;max-width:560px;margin:0 auto}
   #cover .synopsis b{color:#f0c98d;font-weight:600}
-  #cover .volumes{display:flex;gap:14px;justify-content:center;margin:30px 0 12px;flex-wrap:wrap}
-  #cover .vol{font-size:13px;color:#d8ac74;border:1px solid rgba(216,172,116,.35);padding:8px 18px;border-radius:20px;letter-spacing:2px}
+  #cover .volumes{display:flex;flex-direction:column;gap:10px;justify-content:center;align-items:center;margin:30px 0 12px}
+  #cover .vol{font-size:13px;color:#d8ac74;border:1px solid rgba(216,172,116,.35);padding:8px 18px;border-radius:20px;letter-spacing:2px;animation:volIn .6s ease both}
+  #cover .vol:nth-child(2){animation-delay:.15s}
+  #cover .vol:nth-child(3){animation-delay:.3s}
+  @keyframes volIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   #cover .btn-start{
     margin-top:38px;display:inline-flex;align-items:center;gap:12px;
     font-size:17px;letter-spacing:6px;color:#241b10;background:linear-gradient(135deg,var(--ember-glow),var(--ember));
@@ -160,6 +163,13 @@
     padding:4px 10px 0 0;font-family:Georgia,serif;text-shadow:1px 1px 0 rgba(201,111,44,.2);
   }
   .prose .break{margin:2em 0;text-align:center;letter-spacing:12px;color:var(--gold);font-size:13px}
+  /* 竖版章节封面（置于正文顶部） */
+  .ch-cover{display:none;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid rgba(169,114,31,.28);animation:fadeUp .5s ease both}
+  .ch-cover .ch-num{font-size:44px;margin-bottom:2px}
+  .ch-cover .ch-title{font-size:24px;margin-bottom:12px}
+  .ch-cover .epigraph{margin:10px 0}
+  .ch-cover .ch-tags{margin-top:12px;margin-bottom:2px}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   /* 章节导航抽屉 */
   #drawer{
     position:fixed;top:58px;left:0;bottom:0;width:340px;max-width:86vw;z-index:35;
@@ -201,6 +211,7 @@
     .font-ctrl button{padding:6px 7px;font-size:13px}
     .spine{display:none}
     .leaf-left{display:none}
+    .ch-cover{display:block}
     .leaf-right{border-radius:6px}
     .turn-leaf{width:100%;right:0}
     .book{width:96vw;height:min(85vh,720px)}
@@ -239,8 +250,13 @@
   body.focus-mode #stage{top:0 !important}
   body.focus-mode #prevBtn,body.focus-mode #nextBtn{opacity:0;pointer-events:none;transition:opacity .3s}
   body.focus-mode #shade{display:none}
-  body.focus-mode #fsBtn{position:fixed;top:8px;right:8px;z-index:50;opacity:.4;transition:opacity .3s}
-  body.focus-mode #fsBtn:hover{opacity:1}
+  body.focus-mode #fsBtn{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;opacity:1;padding:11px 24px;background:rgba(20,14,7,.88);border-color:rgba(255,170,90,.65);font-size:14px;letter-spacing:2px;box-shadow:0 6px 24px rgba(0,0,0,.55)}
+  body.focus-mode #fsBtn:hover{background:rgba(70,48,24,.95)}
+  /* 翻页按钮：可上下拖动 */
+  .flip-btn{border-radius:22px;box-shadow:0 4px 18px rgba(0,0,0,.35);touch-action:none;user-select:none}
+  .flip-btn.dragging{transition:none}
+  #nextBtn{animation:nextPulse 2.8s ease-in-out infinite}
+  @keyframes nextPulse{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
   @media(prefers-reduced-motion:reduce){
     *{animation:none !important;transition:none !important}
   }
@@ -298,8 +314,8 @@
   </div>
 </div>
 
-<button class="tb-btn" id="prevBtn" style="position:fixed;left:14px;top:50%;z-index:25;transform:translateY(-50%);padding:14px 12px">‹</button>
-<button class="tb-btn" id="nextBtn" style="position:fixed;right:14px;top:50%;z-index:25;transform:translateY(-50%);padding:14px 12px">›</button>
+<button class="tb-btn flip-btn" id="prevBtn" style="position:fixed;left:10px;top:50%;z-index:25;padding:13px 9px;margin-top:-24px">‹</button>
+<button class="tb-btn flip-btn" id="nextBtn" style="position:fixed;right:10px;top:50%;z-index:25;padding:13px 9px;margin-top:-24px">›</button>
 
 <div id="shade"></div>
 <aside id="drawer"></aside>
@@ -619,10 +635,22 @@ function flyleafHtml(ch){
 function proseHtml(ch){
   return "<div class='prose'>"+ch.p.map(p=>p.startsWith("<")?p:"<p>"+p+"</p>").join("")+"</div>";
 }
+function coverHtml(ch){
+  const rn=["Ⅰ","Ⅱ","Ⅲ","Ⅳ","Ⅴ","Ⅵ","Ⅶ","Ⅷ","Ⅸ","Ⅹ"][ch.n-1]||ch.n;
+  return `
+    <div class="ch-cover">
+      <div class="volchip">${htmlEscape(ch.vol)} · ${htmlEscape(ch.vsub)}</div>
+      <div class="ch-num">${rn}</div>
+      <div class="ch-of">第${ch.n}章</div>
+      <h2 class="ch-title">${htmlEscape(ch.title)}</h2>
+      <div class="epigraph">${ch.epigraph}</div>
+      <div class="ch-tags">${ch.tag.map(t=>"<span>"+htmlEscape(t)+"</span>").join("")}</div>
+    </div>`;
+}
 function render(i){
   const ch=NOVEL[i];
   $("leafLeft").innerHTML=flyleafHtml(ch);
-  $("proseCol").innerHTML=proseHtml(ch);
+  $("proseCol").innerHTML=coverHtml(ch)+proseHtml(ch);
   $("proseCol").scrollTop=0;updateFill();
   $("chTicker").textContent="第"+ch.n+"章 · 《"+ch.title+"》";
   updateActive(i);
@@ -719,9 +747,28 @@ function setFont(v){
 }
 $("fsBtn").onclick=()=>{
   const fm=document.body.classList.toggle("focus-mode");
-  $("fsBtn").textContent=fm?"✕":"⛶";
-  $("fsBtn").title=fm?"退出沉浸":"沉浸阅读";
+  $("fsBtn").textContent=fm?"✕ 退出阅读":"⛶ 沉浸";
+  $("fsBtn").title=fm?"退出沉浸阅读":"进入沉浸阅读";
 };
+
+/* —— 翻页按钮：手机端可上下拖动 —— */
+function makeDraggable(btn){
+  let y0=0, top0=0, active=false;
+  btn.addEventListener("touchstart",e=>{
+    if(document.body.classList.contains("focus-mode"))return;
+    const t=e.touches[0];y0=t.clientY;top0=btn.getBoundingClientRect().top;
+    active=true;btn.classList.add("dragging");btn.style.transition="none";
+  },{passive:true});
+  btn.addEventListener("touchmove",e=>{
+    if(!active)return;
+    const t=e.touches[0];
+    btn.style.top=(top0+t.clientY-y0)+"px";
+    if(e.cancelable)e.preventDefault();
+  },{passive:false});
+  btn.addEventListener("touchend",()=>{active=false;btn.classList.remove("dragging");});
+}
+makeDraggable($("prevBtn"));
+makeDraggable($("nextBtn"));
 
 /* —— 启动 —— */
 (function init(){
